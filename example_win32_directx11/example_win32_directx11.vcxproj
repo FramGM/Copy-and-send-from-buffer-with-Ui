@@ -151,6 +151,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="backend\Clipboard.h" />
+    <ClInclude Include="backend\filesystem\filesystem.h" />
+    <ClInclude Include="backend\info.h" />
+    <ClInclude Include="backend\ui\UI.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_dx11.h" />
@@ -158,6 +162,10 @@
     <ClInclude Include="imgui\imgui_internal.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="backend\Clipboard.cpp" />
+    <ClCompile Include="backend\filesystem\filesystem.cpp" />
+    <ClCompile Include="backend\info.cpp" />
+    <ClCompile Include="backend\ui\UI.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
