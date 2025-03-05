@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include <filesystem>
+#include <imgui_internal.h>
 
 // Data
 static ID3D11Device*            g_pd3dDevice = nullptr;
@@ -45,10 +46,159 @@ private:
     std::vector<std::string> m_vecFilesPaths;
 };
 
+struct KeyBind_t
+{
+    constexpr KeyBind_t(const char* szName, const unsigned int uKey = 0U) :
+        szName(szName), uKey(uKey) {
+    }
+
+    bool bEnable = false;
+    const char* szName = nullptr;
+    unsigned int uKey = 0U;
+};
+
+bool GetBindState(KeyBind_t& keyBind)
+{
+    if (keyBind.uKey == 0U)
+        return false;
+
+    keyBind.bEnable = GetAsyncKeyState(keyBind.uKey);
+
+    return keyBind.bEnable;
+}
+
+namespace ImGui
+{
+    bool HotKey(const char* szLabel, unsigned int* pValue);
+
+}
+
+bool ImGui::HotKey(const char* szLabel, unsigned int* pValue)
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiWindow* pWindow = g.CurrentWindow;
+
+    if (pWindow->SkipItems)
+        return false;
+
+    ImGuiIO& io = g.IO;
+    const ImGuiStyle& style = g.Style;
+    const ImGuiID nIndex = pWindow->GetID(szLabel);
+
+    const float flWidth = CalcItemWidth();
+    const ImVec2 vecLabelSize = CalcTextSize(szLabel, nullptr, true);
+
+    const ImRect rectFrame(pWindow->DC.CursorPos + ImVec2(vecLabelSize.x > 0.0f ? style.ItemInnerSpacing.x + GetFrameHeight() : 0.0f, 0.0f), pWindow->DC.CursorPos + ImVec2(flWidth, vecLabelSize.x > 0.0f ? vecLabelSize.y + style.FramePadding.y : 0.f));
+    const ImRect rectTotal(rectFrame.Min, rectFrame.Max);
+
+    ItemSize(rectTotal, style.FramePadding.y);
+    if (!ItemAdd(rectTotal, nIndex, &rectFrame))
+        return false;
+
+    const bool bHovered = ItemHoverable(rectFrame, nIndex, ImGuiItemFlags_None);
+    if (bHovered)
+    {
+        SetHoveredID(nIndex);
+        g.MouseCursor = ImGuiMouseCursor_TextInput;
+    }
+
+    const bool bClicked = bHovered && io.MouseClicked[0];
+    const bool bDoubleClicked = bHovered && io.MouseDoubleClicked[0];
+    if (bClicked || bDoubleClicked)
+    {
+        if (g.ActiveId != nIndex)
+        {
+            memset(io.MouseDown, 0, sizeof(io.MouseDown));
+            io.AddKeyEvent(ImGuiKey_NamedKey_BEGIN, 0);
+            *pValue = 0U;
+        }
+
+        SetActiveID(nIndex, pWindow);
+        FocusWindow(pWindow);
+    }
+
+    bool bValueChanged = false;
+    if (unsigned int nKey = *pValue; g.ActiveId == nIndex)
+    {
+        for (int n = 0; n < IM_ARRAYSIZE(io.MouseDown); n++)
+        {
+            if (IsMouseDown(n))
+            {
+                switch (n)
+                {
+                case 0:
+                    nKey = VK_LBUTTON;
+                    break;
+                case 1:
+                    nKey = VK_RBUTTON;
+                    break;
+                case 2:
+                    nKey = VK_MBUTTON;
+                    break;
+                case 3:
+                    nKey = VK_XBUTTON1;
+                    break;
+                case 4:
+                    nKey = VK_XBUTTON2;
+                    break;
+                }
+
+                bValueChanged = true;
+                ClearActiveID();
+            }
+        }
+
+        if (!bValueChanged)
+        {
+            for (int n = ImGuiKey_NamedKey_BEGIN; n < ImGuiKey_NamedKey_END; n++)
+            {
+                if (IsKeyDown((ImGuiKey)n) && n != ImGuiKey_MouseLeft)
+                {
+                    nKey = n;
+                    bValueChanged = true;
+                    ClearActiveID();
+                }
+            }
+        }
+
+        if (IsKeyPressed(ImGuiKey_Escape))
+        {
+            *pValue = 0U;
+            ClearActiveID();
+        }
+        else
+            *pValue = nKey;
+    }
+
+    char szBuffer[64] = {};
+    char* szBufferEnd = strcpy(szBuffer, "  ");
+    if (*pValue != 0 && g.ActiveId != nIndex)
+        szBufferEnd = strcat(szBufferEnd, GetKeyName((ImGuiKey)*pValue));
+    else if (g.ActiveId == nIndex)
+        szBufferEnd = strcat(szBufferEnd, ("press"));
+    else
+        szBufferEnd = strcat(szBufferEnd, ("none"));
+    strcat(szBufferEnd, "  ");
+
+    // modified by neir0n
+    PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, -1));
+
+    const ImVec2 vecBufferSize = CalcTextSize(szBuffer);
+    RenderFrame(ImVec2(rectFrame.Max.x - vecBufferSize.x, rectTotal.Min.y), ImVec2(rectFrame.Max.x, rectTotal.Min.y + style.FramePadding.y + vecBufferSize.y), GetColorU32((bHovered || bClicked || bDoubleClicked) ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), true, style.FrameRounding);
+    pWindow->DrawList->AddText(ImVec2(rectFrame.Max.x - vecBufferSize.x, rectTotal.Min.y + style.FramePadding.y), GetColorU32(g.ActiveId == nIndex ? ImGuiCol_Text : ImGuiCol_TextDisabled), szBuffer);
+
+    if (vecLabelSize.x > 0.f)
+        RenderText(ImVec2(rectTotal.Min.x, rectTotal.Min.y + style.FramePadding.y), szLabel);
+
+    PopStyleVar();
+    return bValueChanged;
+}
+
 class C_Tab
 {
 public:
-    C_Tab(std::string strTabName) { m_strTabName = strTabName; }
+    C_Tab(std::string strTabName) : pKeyBind(KeyBind_t("")) { m_strTabName = strTabName; }
+    ~C_Tab() {};
 
     std::string GetName() { return m_strTabName; }
     void SetIndex(int iIndex) { m_iTabIndex = iIndex; }
@@ -66,6 +216,8 @@ public:
     {
         return vecTextContainers.at(iInputBoxIndex).GetText();
     }
+
+    KeyBind_t pKeyBind;
 private:
     std::string m_strTabName;
     int m_iTabIndex = -1;
@@ -217,6 +369,19 @@ void RenderTexts()
             pBox.SetText(strEmptyText);
             if (ImGui::Button("Add text"))
                 pCurrentTab->AddBox(pBox);
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Delete tab"))
+            {
+                m_vecTabs.erase(m_vecTabs.begin() + m_iCurrentTab);
+                m_iCurrentTab = 0;
+            }
+
+            ImGui::HotKey("key", &pCurrentTab->pKeyBind.uKey);
+            if (pCurrentTab->pKeyBind.uKey != 0)
+                pCurrentTab->pKeyBind.szName = ImGui::GetKeyName((ImGuiKey)pCurrentTab->pKeyBind.uKey);
+
             ImGui::NewLine();
 
             for (int i = 0; i < pCurrentTab->GetBoxSize(); i++)
@@ -230,10 +395,27 @@ void RenderTexts()
                 AddFileButton(i,pCurrentTab);
                 ImGui::NewLine();
             }
+
+            
         }
 
     }
     ImGui::EndChild();
+}
+
+void TabsEvents()
+{
+    for (auto& pTab : m_vecTabs)
+    {
+        if (pTab->pKeyBind.uKey == 0)
+            continue;
+
+        if (!ImGui::IsKeyPressed((ImGuiKey)pTab->pKeyBind.uKey))
+            continue;
+
+        //do smth
+
+    }
 }
 
 // Main code
@@ -345,7 +527,7 @@ int main(int, char**)
 
         auto* pStyle = &ImGui::GetStyle();
         pStyle->ChildRounding = 5.f;
-        pStyle->Colors[ImGuiCol_ChildBg] = g_Settings->m_vecChildColor;
+       // pStyle->Colors[ImGuiCol_ChildBg] = g_Settings->m_vecChildColor;
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
         {
