@@ -184,14 +184,14 @@ void ImGui::StyleColorsDark(ImGuiStyle* dst)
 
     colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_WindowBg]               = ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
-    colors[ImGuiCol_ChildBg]                = ImVec4(0.07f, 0.07f, 0.07f, 0.94f);
+    colors[ImGuiCol_WindowBg]               = ImVec4(34.f / 255.f, 28.f / 255.f, 30.f / 255.f, 1.f);
+    colors[ImGuiCol_ChildBg]                = ImVec4(74.f / 255.f, 67.f / 255.f, 67.f / 255.f, 0.94f);
     colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
     colors[ImGuiCol_Border]                 = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
     colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_FrameBg]                = ImVec4(0.16f, 0.29f, 0.48f, 0.54f);
-    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-    colors[ImGuiCol_FrameBgActive]          = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    colors[ImGuiCol_FrameBg]                = ImVec4(26.f / 255.f, 27.f / 255.f, 38.f / 255.f, 1.f);
+    colors[ImGuiCol_FrameBgHovered]         = ImVec4(45.f / 255.f, 46.f / 255.f, 64.f / 255.f, 1.f);
+    colors[ImGuiCol_FrameBgActive]          = ImVec4(61.f / 255.f, 62.f / 255.f, 82.f / 255.f, 1.f);
     colors[ImGuiCol_TitleBg]                = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
     colors[ImGuiCol_TitleBgActive]          = ImVec4(0.16f, 0.29f, 0.48f, 1.00f);
     colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
@@ -203,9 +203,9 @@ void ImGui::StyleColorsDark(ImGuiStyle* dst)
     colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
     colors[ImGuiCol_SliderGrab]             = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    colors[ImGuiCol_ButtonActive]           = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
+    colors[ImGuiCol_Button]                 = ImVec4(32.f / 255.f, 40.f / 255.f, 46.f / 255.f, 1.f);
+    colors[ImGuiCol_ButtonHovered]          = ImVec4(53.f / 255.f, 62.f / 255.f, 70.f / 255.f, 1.00f);
+    colors[ImGuiCol_ButtonActive]           = ImVec4(83.f / 255.f, 93.f / 255.f, 101.f / 255.f, 1.00f);
     colors[ImGuiCol_Header]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
     colors[ImGuiCol_HeaderHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
     colors[ImGuiCol_HeaderActive]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
@@ -311,14 +311,14 @@ void ImGui::StyleColorsLight(ImGuiStyle* dst)
 
     colors[ImGuiCol_Text]                   = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_TextDisabled]           = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-    colors[ImGuiCol_WindowBg]               = ImVec4(0.94f, 0.94f, 0.94f, 1.00f);
-    colors[ImGuiCol_ChildBg]                = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[ImGuiCol_WindowBg]               = ImVec4(233.f / 255.f, 226.f / 255.f, 228.f / 255.f, 0.79f);
+    colors[ImGuiCol_ChildBg]                = ImVec4(255.f / 255.f, 251.f / 255.f, 251.f / 255.f, 1.00f);
     colors[ImGuiCol_PopupBg]                = ImVec4(1.00f, 1.00f, 1.00f, 0.98f);
     colors[ImGuiCol_Border]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.30f);
     colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_FrameBg]                = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-    colors[ImGuiCol_FrameBgActive]          = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    colors[ImGuiCol_FrameBg]                = ImVec4(213.f / 255.f, 214.f / 255.f, 251.f / 255.f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered]         = ImVec4(186.f / 255.f, 188.f / 255.f, 235.f / 255.f, 1.f);
+    colors[ImGuiCol_FrameBgActive]          = ImVec4(158.f / 255.f, 159.f / 255.f, 213.f / 255.f, 1.f);
     colors[ImGuiCol_TitleBg]                = ImVec4(0.96f, 0.96f, 0.96f, 1.00f);
     colors[ImGuiCol_TitleBgActive]          = ImVec4(0.82f, 0.82f, 0.82f, 1.00f);
     colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(1.00f, 1.00f, 1.00f, 0.51f);
@@ -330,9 +330,9 @@ void ImGui::StyleColorsLight(ImGuiStyle* dst)
     colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
     colors[ImGuiCol_SliderGrab]             = ImVec4(0.26f, 0.59f, 0.98f, 0.78f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.46f, 0.54f, 0.80f, 0.60f);
-    colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    colors[ImGuiCol_ButtonActive]           = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
+    colors[ImGuiCol_Button]                 = ImVec4(160.f / 255.f, 181.f / 255.f, 199.f / 255.f, 1.0f);
+    colors[ImGuiCol_ButtonHovered]          = ImVec4(126.f / 255.f, 152.f / 255.f, 175.f / 255.f, 1.00f);
+    colors[ImGuiCol_ButtonActive]           = ImVec4(92.f / 255.f, 121.f / 255.f, 146.f / 255.f, 1.f);
     colors[ImGuiCol_Header]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
     colors[ImGuiCol_HeaderHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
     colors[ImGuiCol_HeaderActive]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);

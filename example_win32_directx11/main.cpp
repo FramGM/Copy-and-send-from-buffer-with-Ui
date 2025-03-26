@@ -14,7 +14,10 @@
 #include <vector>
 #include <string>
 #include <filesystem>
-#include <imgui_internal.h>
+#include "imgui/imgui_internal.h"
+#include "backend/ui/UI.h"
+#include "frontend/TextBox.h"
+#include "frontend/Includes.h"
 
 // Data
 static ID3D11Device* g_pd3dDevice = nullptr;
@@ -23,7 +26,6 @@ static IDXGISwapChain* g_pSwapChain = nullptr;
 static bool                     g_SwapChainOccluded = false;
 static UINT                     g_ResizeWidth = 0, g_ResizeHeight = 0;
 static ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
-ImVec2 vecWindowSize = ImVec2(1000, 700);
 
 // Forward declarations of helper functions
 bool CreateDeviceD3D(HWND hWnd);
@@ -32,40 +34,7 @@ void CreateRenderTarget();
 void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-class C_TextBox
-{
-public:
-	ImVector<char>& GetText() { return m_vecText; }
-	void SetText(ImVector<char> vecText) { m_vecText = vecText; }
 
-	void AddFile(std::string strPath) { m_vecFilesPaths.push_back(strPath); }
-	std::string GetFileByIndex(int iIndex) { return m_vecFilesPaths.at(iIndex); }
-
-private:
-	ImVector<char> m_vecText;
-	std::vector<std::string> m_vecFilesPaths;
-};
-
-struct KeyBind_t
-{
-	constexpr KeyBind_t(const char* szName, const unsigned int uKey = 0U) :
-		szName(szName), uKey(uKey) {
-	}
-
-	bool bEnable = false;
-	const char* szName = nullptr;
-	unsigned int uKey = 0U;
-};
-
-bool GetBindState(KeyBind_t& keyBind)
-{
-	if (keyBind.uKey == 0U)
-		return false;
-
-	keyBind.bEnable = GetAsyncKeyState(keyBind.uKey);
-
-	return keyBind.bEnable;
-}
 
 namespace ImGui
 {
@@ -194,52 +163,20 @@ bool ImGui::HotKey(const char* szLabel, unsigned int* pValue)
 	return bValueChanged;
 }
 
-class C_Tab
-{
-public:
-	C_Tab(std::string strTabName) : pKeyBind(KeyBind_t("")) { m_strTabName = strTabName; }
-	~C_Tab() {};
 
-	std::string GetName() { return m_strTabName; }
-	void SetIndex(int iIndex) { m_iTabIndex = iIndex; }
-	int GetIndex() { return m_iTabIndex; }
-	int GetBoxSize() { return vecTextContainers.size(); }
-	C_TextBox& GetBox(int iIndex) { return vecTextContainers.at(iIndex); }
-	void AddBox(C_TextBox pBox) { vecTextContainers.push_back(pBox); }
-
-
-	void SetText(int iInputBoxIndex, ImVector<char> vecText)
-	{
-		vecTextContainers.at(iInputBoxIndex).SetText(vecText);
-	}
-	ImVector<char>& GetText(int iInputBoxIndex)
-	{
-		return vecTextContainers.at(iInputBoxIndex).GetText();
-	}
-
-	KeyBind_t pKeyBind;
-private:
-	std::string m_strTabName;
-	int m_iTabIndex = -1;
-
-	std::vector<C_TextBox> vecTextContainers;
-};
-
-std::vector<C_Tab*> m_vecTabs;
-int m_iCurrentTab = 0;
 
 void RenderTabs()
 {
-	ImGui::BeginChild("Test tab", ImVec2(165, vecWindowSize.y - 55), ImGuiChildFlags_Borders);
+	ImGui::BeginChild("Child tab", ImVec2(165, g_Include->vecWindowSize.y - 55), ImGuiChildFlags_Borders);
 	{
-		for (int iTab = 0; iTab < m_vecTabs.size(); iTab++)
+		for (int iTab = 0; iTab < g_Include->m_vecTabs.size(); iTab++)
 		{
-			if (ImGui::Button(m_vecTabs.at(iTab)->GetName().c_str(), ImVec2(147, 40)))
-				m_iCurrentTab = iTab;
+			if (ImGui::Button(g_Include->m_vecTabs.at(iTab)->GetName().c_str(), ImVec2(147, 40)))
+				g_Include->m_iCurrentTab = iTab;
 		}
 
 		if (ImGui::Button("+", ImVec2(147, 40)))
-			m_iCurrentTab = INT_MAX;
+			g_Include->m_iCurrentTab = INT_MAX;
 
 	}
 	ImGui::EndChild();
@@ -261,10 +198,10 @@ void AddConfig()
 	if (ImGui::Button("Add config"))
 	{
 		C_Tab* pNewTab = new C_Tab(g_Settings->m_strConfigName);
-		pNewTab->SetIndex(m_vecTabs.size() - 1);
+		pNewTab->SetIndex(g_Include->m_vecTabs.size() - 1);
 
-		m_vecTabs.push_back(pNewTab);
-		m_iCurrentTab = m_vecTabs.size() - 1;
+		g_Include->m_vecTabs.push_back(pNewTab);
+		g_Include->m_iCurrentTab = g_Include->m_vecTabs.size() - 1;
 
 		for (auto& ch : g_Settings->m_strConfigName)
 		{
@@ -352,16 +289,16 @@ void RenderMainTab()
 
 void RenderTexts()
 {
-	ImGui::BeginChild("Text Child", ImVec2(vecWindowSize.x - 205, vecWindowSize.y - 55), ImGuiChildFlags_Borders);
+	ImGui::BeginChild("Text Child", ImVec2(g_Include->vecWindowSize.x - 205, g_Include->vecWindowSize.y - 55), ImGuiChildFlags_Borders);
 	{
-		if (!m_iCurrentTab)
+		if (!g_Include->m_iCurrentTab)
 			RenderMainTab();
-		else if (m_iCurrentTab == INT_MAX)
+		else if (g_Include->m_iCurrentTab == INT_MAX)
 			AddConfig();
 
-		if (m_iCurrentTab && m_iCurrentTab != INT_MAX)
+		if (g_Include->m_iCurrentTab && g_Include->m_iCurrentTab != INT_MAX)
 		{
-			C_Tab* pCurrentTab = m_vecTabs.at(m_iCurrentTab);
+			C_Tab* pCurrentTab = g_Include->m_vecTabs.at(g_Include->m_iCurrentTab);
 			ImVector<char> strEmptyText;
 			if (strEmptyText.empty())
 				strEmptyText.push_back(0);
@@ -375,8 +312,8 @@ void RenderTexts()
 
 			if (ImGui::Button("Delete tab"))
 			{
-				m_vecTabs.erase(m_vecTabs.begin() + m_iCurrentTab);
-				m_iCurrentTab = 0;
+				g_Include->m_vecTabs.erase(g_Include->m_vecTabs.begin() + g_Include->m_iCurrentTab);
+				g_Include->m_iCurrentTab = 0;
 			}
 
 			ImGui::HotKey("key", &pCurrentTab->pKeyBind.uKey);
@@ -385,9 +322,10 @@ void RenderTexts()
 
 			ImGui::NewLine();
 
+			ImGui::PushFont(g_UI->pTextFont);
 			for (int i = 0; i < pCurrentTab->GetBoxSize(); i++)
 			{
-
+				
 				std::string strBoxName = "Text##" + std::to_string(i);
 				ImVector<char> strText = pCurrentTab->GetText(i);
 				MyInputTextMultiline(strBoxName.c_str(), &strText);
@@ -396,7 +334,7 @@ void RenderTexts()
 				AddFileButton(i, pCurrentTab);
 				ImGui::NewLine();
 			}
-
+			ImGui::PopFont();
 
 		}
 
@@ -767,7 +705,7 @@ void TabsEvents()
 	while (true)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		for (auto& pTab : m_vecTabs)
+		for (auto& pTab : g_Include->m_vecTabs)
 		{
 			if (pTab->pKeyBind.uKey == 0)
 				continue;
@@ -775,10 +713,27 @@ void TabsEvents()
 			if (!GetAsyncKeyState(ConvertImGuiKeyToChar((ImGuiKey)pTab->pKeyBind.uKey)) && !ImGui::IsKeyPressed((ImGuiKey)pTab->pKeyBind.uKey))
 				continue;
 
+
 			for (int i = 0; i < pTab->GetBoxSize(); i++)
 			{
+				Sleep(100);
+
+				for (int iFiles = 0; iFiles < pTab->GetBox(i).GetFilesSize(); iFiles++)
+				{
+					std::string strFilePath = pTab->GetBox(i).GetFileByIndex(iFiles);
+					g_Clipboard->CopyFileToClipboard(strFilePath);
+					Sleep(100);
+					g_Clipboard->CtrlV();
+					Sleep(100);
+				}
+				Sleep(100);
 				std::string strText = std::string(pTab->GetText(i).begin(), pTab->GetText(i).end());
-				std::cout << strText << '\n';
+				g_Clipboard->TextToClipboard(utf8_to_wstring(strText));
+				Sleep(100);
+				g_Clipboard->CtrlV();
+				Sleep(100);
+
+				g_Clipboard->Enter();
 			}
 
 		}
@@ -793,8 +748,8 @@ int main(int, char**)
 	//ImGui_ImplWin32_EnableDpiAwareness();
 	WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"Autoruss Helper", nullptr };
 	::RegisterClassExW(&wc);
-	HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Autoruss Helper", WS_OVERLAPPEDWINDOW, 100, 100, vecWindowSize.x, vecWindowSize.y, nullptr, nullptr, wc.hInstance, nullptr);
-
+	HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Autoruss Helper", WS_OVERLAPPEDWINDOW, 100, 100, g_Include->vecWindowSize.x, g_Include->vecWindowSize.y, nullptr, nullptr, wc.hInstance, nullptr);
+	::ShowWindow(::GetConsoleWindow(), SW_HIDE);
 	// Initialize Direct3D
 	if (!CreateDeviceD3D(hwnd))
 	{
@@ -832,7 +787,7 @@ int main(int, char**)
 	// - Read 'docs/FONTS.md' for more instructions and details.
 	// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
 	//io.Fonts->AddFontDefault();
-	//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
+	g_UI->pTextFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesCyrillic());
 	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
 	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
 	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
@@ -841,7 +796,7 @@ int main(int, char**)
 
 	C_Tab* pMainTab = new C_Tab("Main");
 	pMainTab->SetIndex(0);
-	m_vecTabs.push_back(pMainTab);
+	g_Include->m_vecTabs.push_back(pMainTab);
 
 	// Main loop
 	bool done = false;
@@ -883,8 +838,8 @@ int main(int, char**)
 			int width = rect.right - rect.left;
 			int height = rect.bottom - rect.top;
 
-			vecWindowSize.x = width;
-			vecWindowSize.y = height;
+			g_Include->vecWindowSize.x = width;
+			g_Include->vecWindowSize.y = height;
 		}
 
 		if (g_Settings->bChangeStyle)
@@ -897,7 +852,7 @@ int main(int, char**)
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 		ImGui::SetNextWindowPos(ImVec2(-1, -1), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(vecWindowSize, ImGuiCond_Always);
+		ImGui::SetNextWindowSize(g_Include->vecWindowSize, ImGuiCond_Always);
 
 		auto* pStyle = &ImGui::GetStyle();
 		pStyle->ChildRounding = 5.f;

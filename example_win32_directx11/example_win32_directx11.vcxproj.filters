@@ -14,6 +14,13 @@
     <ClInclude Include="imgui\imgui_internal.h" />
     <ClInclude Include="imgui\imgui_impl_dx11.h" />
     <ClInclude Include="imgui\imgui_impl_win32.h" />
+    <ClInclude Include="backend\Clipboard.h" />
+    <ClInclude Include="backend\filesystem\filesystem.h" />
+    <ClInclude Include="backend\info.h" />
+    <ClInclude Include="backend\ui\UI.h" />
+    <ClInclude Include="frontend\Tab.h" />
+    <ClInclude Include="frontend\TextBox.h" />
+    <ClInclude Include="frontend\Includes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -26,6 +33,12 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="imgui\imgui_impl_dx11.cpp" />
     <ClCompile Include="imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="backend\Clipboard.cpp" />
+    <ClCompile Include="backend\filesystem\filesystem.cpp" />
+    <ClCompile Include="backend\info.cpp" />
+    <ClCompile Include="backend\ui\UI.cpp" />
+    <ClCompile Include="frontend\Tab.cpp" />
+    <ClCompile Include="frontend\TextBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.txt" />
