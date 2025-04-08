@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "imgui-autoruss/example_win32_directx11/imgui/imgui.h"
+#include "../imgui/imgui.h"
 
 class C_TextBox
 {
