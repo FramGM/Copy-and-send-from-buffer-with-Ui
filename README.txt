@@ -1,9 +1,13 @@
-See BACKENDS and EXAMPLES files in the docs/ folder, or on the web at: https://github.com/ocornut/imgui/tree/master/docs
+This project can help for HR workers.
 
-Backends = Helper code to facilitate integration with platforms/graphics api (used by Examples + should be used by your app).
-Examples = Standalone applications showcasing integration with platforms/graphics api.
+Project contains 2 ver. of app. DirextX9 and Direct11.
+Build DirectX9 if your PC don't have VS redist.
 
-Some Examples have extra README files in their respective directory, please check them too!
+In main window you can add configuration(add tab) in tab list with custom name.
+In configuration you can add more text boxes(supports multiline text) and files(images, docs, etc.) for sending.
 
-Once Dear ImGui is running (in either examples or your own application/game/engine),
-run and refer to ImGui::ShowDemoWindow() in imgui_demo.cpp for the end-user API.
+Working like Ctrl+C and Ctrl+V.
+
+Supports multiple configurations with hotkey system for each configuration.
+Supports russian language.
+APP DON'T SAVE CONFIGURATIONS.
